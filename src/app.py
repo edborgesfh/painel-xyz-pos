@@ -12,7 +12,7 @@ import plotly.graph_objects as go
 
 # Carrega o DataFrame
 
-df_cursos = pd.read_csv('src/df_cursos.csv')
+df_cursos = pd.read_csv('df_cursos.csv')
 
 df_cursos['data final'] = pd.to_datetime(df_cursos['data final'], format='ISO8601')
 df_cursos['data inicial'] = pd.to_datetime(df_cursos['data inicial'], format='ISO8601')
