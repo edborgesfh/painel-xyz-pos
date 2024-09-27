@@ -1,0 +1,99 @@
+/* Estilos Globais */
+body {
+  font-family: 'Roboto', sans-serif; /* Define a fonte padrão */
+}
+
+/* Estilo para títulos */
+.titulos {
+font-size: medium;
+letter-spacing: 5px;
+text-transform: uppercase;
+text-align: center;
+padding: 0px;
+}
+
+/* Estilo para subtítulos */
+.subtitulos {
+font-size: small;
+letter-spacing: 2px;
+text-align: center;
+color: #007eff;
+padding: 0px;
+line-height: 5px;
+}
+
+/* Estilo para Dropdown */
+.dropdown-style {
+width: 95%;
+margin-top: 0px;
+margin-bottom: 0px;
+margin-left: auto;
+margin-right: auto;
+background-color: #fff;
+color: #000;
+}
+
+.dropdown-style .Select-control {
+background-color: #fff;
+color: #000;
+font-size: 16px;
+text-align: left;
+}
+
+.dropdown-style .Select-menu-outer{
+background-color: #fff;
+color: #000;
+font-size: 14px;
+text-align: left;
+optionHeight: 70px,
+}
+
+.dropdown-style.dark-mode {
+width: 95%;
+margin-top: 0px;
+margin-bottom: 0px;
+margin-left: auto;
+margin-right: auto;
+background-color: #222;
+color: #fff;
+}
+
+.dropdown-style.dark-mode .Select-control {
+background-color: #222;
+color: #fff;
+font-size: 16px;
+text-align: left;
+}
+
+.dropdown-style.dark-mode .Select-menu-outer{
+background-color: #222;
+color: #fff;
+font-size: 14px;
+text-align: left;
+optionHeight: 70px,
+}
+
+/* Estilo dos cartões */
+.card-estilo {
+borde: 2px solid #F1C40F;
+}
+
+/* Estilo da barra de rolagem */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+
