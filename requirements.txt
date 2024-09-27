@@ -1,5 +1,7 @@
-openpyxl
 dash
-plotly
+gunicorn
 pandas
 numpy
+plotly
+dash-bootstrap-components
+dash-bootstrap-templates
