@@ -3,6 +3,3 @@ dash
 plotly
 pandas
 numpy
-dash_bootstrap_components
-plotly.express
-plotly.graph_objects
