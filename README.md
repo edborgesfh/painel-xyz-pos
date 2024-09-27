@@ -4,6 +4,11 @@ Link: https://painel-xyz-pos.onrender.com
 
 Este repositório abriga um painel interativo e dinâmico construído com Dash, desenvolvido para monitorar o progresso e fornecer insights sobre a produção de aulas de pós-graduação. 
 
+**Base de dados:**
+
+* Inteiramente fictícia, isso permite que você possa adaptar a sua base de dados.
+* Portanto, todos os nomes, etapas, datas e outras infomações foram geradas aleatóriamente em uma planilha ou com o auxilio de inteligencia artificial.
+
 **Características:**
 
 * **Visualização Completa:** Explore o progresso geral de cada curso, visualizando a quantidade de aulas concluídas ao longo do tempo.
