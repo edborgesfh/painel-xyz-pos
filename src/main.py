@@ -12,7 +12,7 @@ import plotly.graph_objects as go
 
 # Carrega o DataFrame
 
-df_cursos = pd.read_csv('df_cursos.csv')
+df_cursos = pd.read_csv('src/df_cursos.csv')
 
 df_cursos['data final'] = pd.to_datetime(df_cursos['data final'], format='ISO8601')
 df_cursos['data inicial'] = pd.to_datetime(df_cursos['data inicial'], format='ISO8601')
@@ -51,7 +51,7 @@ titulo_div = [
             html.H5('Painel — Pós-Graduações',
                     id='titulo',
                     className='titulos m-0'),
-            html.P('Bittar Unicorp',
+            html.P('Universidade Corporativa XYZ',
                    id='subtitulo',
                    className='subtitulos m-1')
         ], className='p-2'
@@ -97,10 +97,14 @@ filtro_modulo = [
 card_3_geral = dbc.Card(
     dbc.CardBody(
         [
-            dcc.Graph(
-                id='geral',
-                config={'responsive': True},
-            )
+            dcc.Loading(id='loading-geral',
+                        children=[
+                            dcc.Graph(
+                                id='geral',
+                                config={'responsive': True},
+                            )
+                        ], color='#F1C40F',
+                        )
         ], className='p-0',
     ), id='card-3-geral', className='dbc-card',
 )
@@ -108,10 +112,14 @@ card_3_geral = dbc.Card(
 card_4_gantt = dbc.Card(
     dbc.CardBody(
         [
-            dcc.Graph(
-                id='gantt',
-                config={'responsive': True},
-            )
+            dcc.Loading(id='loading-gantt',
+                        children=[
+                            dcc.Graph(
+                                id='gantt',
+                                config={'responsive': True},
+                            ),
+                        ], color='#F1C40F',
+                        )
         ], className='p-0',
     ), id='card-4-gantt'
 )
@@ -119,9 +127,13 @@ card_4_gantt = dbc.Card(
 card_5_linhas = dbc.Card(
     dbc.CardBody(
         [
-            dcc.Graph(id='g-linhas',
-                      config={'responsive': True}
-                      )
+            dcc.Loading(id='loading-linhas',
+                        children=[
+                            dcc.Graph(id='g-linhas',
+                                      config={'responsive': True}
+                                      )
+                        ], color='#F1C40F',
+                        )
         ], className='p-2'
     ), id='card-5-linhas'
 )
@@ -129,12 +141,16 @@ card_5_linhas = dbc.Card(
 card_6_indicadores = dbc.Card(
     dbc.CardBody(
         [
-            dbc.Row([
-                dbc.Col([dcc.Graph(id='g-progresso', config={'responsive': True})], width=12)
-            ]),
-            dbc.Row([
-                dbc.Col([dcc.Graph(id='g-duracao', config={'responsive': True})], width=12)
-            ]),
+            dcc.Loading(id='loading-indicadores',
+                        children=[
+                            dbc.Row([
+                                dbc.Col([dcc.Graph(id='g-progresso', config={'responsive': True})], width=12)
+                            ]),
+                            dbc.Row([
+                                dbc.Col([dcc.Graph(id='g-duracao', config={'responsive': True})], width=12)
+                            ]),
+                        ], color='#F1C40F',
+                        )
         ], className='p-2'
     ), id='card-6-indicadores'
 )
@@ -142,9 +158,13 @@ card_6_indicadores = dbc.Card(
 card_7_barras = dbc.Card(
     dbc.CardBody(
         [
-            dcc.Graph(id='g-barras',
-                      config={'responsive': True}
-                      )
+            dcc.Loading(id='loading-barras',
+                        children=[
+                            dcc.Graph(id='g-barras',
+                                      config={'responsive': True}
+                                      ),
+                        ], color='#F1C40F',
+                        )
         ], className='p-2'
     ), id='card-7-barras'
 )
@@ -152,9 +172,13 @@ card_7_barras = dbc.Card(
 card_8_professores = dbc.Card(
     dbc.CardBody(
         [
-            dcc.Graph(id='g-professores',
-                      config={'responsive': True}
-                      )
+            dcc.Loading(id='loading-professores',
+                        children=[
+                            dcc.Graph(id='g-professores',
+                                      config={'responsive': True}
+                                      ),
+                        ], color='#F1C40F',
+                        )
         ], className='p-2'
     ), id='card-8-professores'
 )
@@ -162,24 +186,34 @@ card_8_professores = dbc.Card(
 card_9_responsavel = dbc.Card(
     dbc.CardBody(
         [
-            html.Div(
-                dcc.Graph(id='g-responsavel',
-                          config={'responsive': True},
-                          ),
-                style={'height': '400px', 'overflowY': 'auto'}
-            )
+            dcc.Loading(id='loading-responsavel',
+                        children=[
+                            html.Div(
+                                dcc.Graph(id='g-responsavel',
+                                          config={'responsive': True},
+                                          ),
+                                style={'height': '400px', 'overflowY': 'auto'}
+                            )
+                        ], color='#F1C40F',
+                        )
         ], className='p-2'
     ), id='card-9-responsavel'
 )
 
-linha_1 = dbc.Row(
+linha_0 = dbc.Row(
     [
+        dbc.Col(width=1),
+        dbc.Col(titulo_div, width=10),
         dbc.Col(color_mode_switch, width=1),
-        dbc.Col(titulo_div, width=3),
-        dbc.Col(filtro_cursos, width=4),
-        dbc.Col(filtro_modulo, width=4)
 
     ], className='w-100 g-2 mt-1'
+)
+
+linha_1 = dbc.Row(
+    [
+        dbc.Col(filtro_cursos, width=4),
+        dbc.Col(filtro_modulo, width=6),
+    ], className='w-100 g-2 mt-1', justify='center'
 )
 
 linha_2 = dbc.Row(
@@ -212,6 +246,7 @@ linha_5 = dbc.Row(
 
 app.layout = dbc.Container(
     [
+        linha_0,
         linha_1,
         linha_2,
         linha_3,
@@ -297,7 +332,7 @@ def atualizar_graficos(modulo_selecionado, curso_selecionado, switch_on):
                         x_end='data final',
                         y='Aula',
                         color='progresso',
-                        color_continuous_scale=['rgb(0,32,255)', 'rgb(1,255,176)', 'rgb(51,254,0)', 'rgb(34,201,8)'],
+                        color_continuous_scale=['rgb(0,32,255)', 'rgb(34,201,8)'],
                         hover_data={'ID': True, 'Aula': True, 'Módulo': True, 'Responsável': True, 'Etapa': True}
                         )
 
@@ -572,6 +607,18 @@ clientside_callback(
     Output('color-mode-switch', 'id'),
     Input('color-mode-switch', 'value'),
 )
+
+@app.callback(
+    [Output('filtro-curso', 'className'),
+     Output('filtro-modulo', 'className')],
+    [Input('color-mode-switch', 'value')]
+)
+def update_dropdown_style(switch_value):
+    if switch_value:
+        return ['dropdown', 'dropdown']
+    else:
+        return ['dropdown dark-mode', 'dropdown dark-mode']
+
 # Exercutar o app
 if __name__ == '__main__':
     app.run(debug=True, port=8066)

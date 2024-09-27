@@ -17,13 +17,13 @@ padding: 0px;
 font-size: small;
 letter-spacing: 2px;
 text-align: center;
-color: #007eff;
+color: #F1C40F;
 padding: 0px;
 line-height: 5px;
 }
 
 /* Estilo para Dropdown */
-.dropdown-style {
+.dropdown {
 width: 95%;
 margin-top: 0px;
 margin-bottom: 0px;
@@ -33,14 +33,14 @@ background-color: #fff;
 color: #000;
 }
 
-.dropdown-style .Select-control {
+.dropdown .Select-control {
 background-color: #fff;
 color: #000;
 font-size: 16px;
 text-align: left;
 }
 
-.dropdown-style .Select-menu-outer{
+.dropdown .Select-menu-outer{
 background-color: #fff;
 color: #000;
 font-size: 14px;
@@ -48,7 +48,7 @@ text-align: left;
 optionHeight: 70px,
 }
 
-.dropdown-style.dark-mode {
+.dropdown.dark-mode {
 width: 95%;
 margin-top: 0px;
 margin-bottom: 0px;
@@ -58,24 +58,19 @@ background-color: #222;
 color: #fff;
 }
 
-.dropdown-style.dark-mode .Select-control {
+.dropdown.dark-mode .Select-control {
 background-color: #222;
 color: #fff;
 font-size: 16px;
 text-align: left;
 }
 
-.dropdown-style.dark-mode .Select-menu-outer{
+.dropdown.dark-mode .Select-menu-outer{
 background-color: #222;
 color: #fff;
 font-size: 14px;
 text-align: left;
 optionHeight: 70px,
-}
-
-/* Estilo dos cartões */
-.card-estilo {
-borde: 2px solid #F1C40F;
 }
 
 /* Estilo da barra de rolagem */
