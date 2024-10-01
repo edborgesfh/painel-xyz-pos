@@ -1,24 +1,14 @@
-from dash import Dash, html, dcc, Input, Output, clientside_callback
-from dash_bootstrap_templates import load_figure_template
+from dash import Dash, html, dcc, Input, Output
 import dash_bootstrap_components as dbc
 
 import numpy as np
 import pandas as pd
-import plotly.io as pio
 import plotly.express as px
 import plotly.graph_objects as go
 
-# Leitura do arquivo
-
-# Carrega o DataFrame
-
-df_cursos = pd.read_csv('df_cursos.csv')
-
-df_cursos['data final'] = pd.to_datetime(df_cursos['data final'], format='ISO8601')
-df_cursos['data inicial'] = pd.to_datetime(df_cursos['data inicial'], format='ISO8601')
+from flask_caching import Cache
 
 # Estilo
-
 ## Para os Gráficos
 grafico_config = {
     'showlegend': False,
@@ -27,23 +17,63 @@ grafico_config = {
     'margin': {'pad': 0}
 }
 
-## Para mudar o tema
-color_mode_switch = html.Div(
-    html.Span(
-        [
-            dbc.Label(className="fa fa-moon", html_for="switch"),
-            dbc.Switch(id="color-mode-switch", value=True, className="d-inline-block ms-1", persistence=True),
-            dbc.Label(className="fa fa-sun", html_for="switch"),
-        ], className='ms-3 mt-3',
-    )
-)
-
-load_figure_template(['journal', 'journal_dark'])
-
 # Configuração do aplicativo
 app = Dash(__name__, external_stylesheets=[dbc.themes.JOURNAL, dbc.icons.FONT_AWESOME, '/assets/styles.css'])
-
 server = app.server
+
+# Configuração do cache com Flask-Caching
+cache = Cache(app.server, config={
+    'CACHE_TYPE': 'SimpleCache',  # Cache em memória simples
+    'CACHE_DEFAULT_TIMEOUT': 60  # Tempo de expiração do cache em segundos (300 segundos = 5 minutos)
+})
+
+# Leitura e cache dos dados
+@cache.memoize()  # Decorador para armazenar o resultado da função no cache
+def load_data():
+    # Leitura do arquivo CSV
+    df_cursos = pd.read_csv('df_cursos.csv')
+    df_cursos['data final'] = pd.to_datetime(df_cursos['data final'], format='ISO8601')
+    df_cursos['data inicial'] = pd.to_datetime(df_cursos['data inicial'], format='ISO8601')
+    return df_cursos
+
+# Utilização dos dados no gráfico
+df_cursos = load_data()
+
+##Geral
+def gerar_grafico_geral():
+    ### Operação com o df para gerar o gráfico
+    aulas_prontas = df_cursos[df_cursos['progresso'] == 100]
+    aulas_prontas = aulas_prontas.groupby(['data final', 'curso', 'Módulo'])['Aula'].sum().reset_index()
+    aulas_prontas['Aula'] = 1
+    aulas_prontas = aulas_prontas.sort_values(by=['curso', 'data final'])
+    aulas_prontas['aulas prontas'] = aulas_prontas.groupby(['curso'])['Aula'].cumsum()
+
+    ### Plotagem do gráfico
+    g_geral = px.line(aulas_prontas,
+                      height=600,
+                      x='data final',
+                      y='aulas prontas',
+                      color='curso',
+                      hover_data={'Aula': True}
+                      )
+
+    g_geral.update_layout(grafico_config, showlegend=True,
+                          legend=dict(title='Cursos', yanchor='top', y=0.90, xanchor='left', x=0.10),
+                          title={'text': 'Progresso de Aulas Finalizadas por Curso', 'x': 0.5},
+                          )
+
+    g_geral.update_yaxes(title='Aulas Finalizadas')
+    g_geral.update_xaxes(title=None, rangeslider=dict(visible=True, thickness=0.07))
+
+    g_geral.update_traces(mode='lines+markers',
+                          customdata=np.stack(
+                              (aulas_prontas['curso'], aulas_prontas['Módulo'], aulas_prontas['Aula']),
+                              axis=-1),
+                          hovertemplate='Módulo %{customdata[1]}<br>'
+                                        'Aula: %{customdata[2]}<br>'
+                                        'Concluída em %{x}<br>'
+                          )
+    return g_geral
 
 titulo_div = [
     html.Div(
@@ -102,6 +132,7 @@ card_3_geral = dbc.Card(
                             dcc.Graph(
                                 id='geral',
                                 config={'responsive': True},
+                                figure=gerar_grafico_geral(),
                             )
                         ], color='#F1C40F',
                         )
@@ -202,10 +233,7 @@ card_9_responsavel = dbc.Card(
 
 linha_0 = dbc.Row(
     [
-        dbc.Col(width=1),
-        dbc.Col(titulo_div, width=10),
-        dbc.Col(color_mode_switch, width=1),
-
+        dbc.Col(titulo_div),
     ], className='w-100 g-2 mt-1'
 )
 
@@ -255,54 +283,6 @@ app.layout = dbc.Container(
     ], className='g-2',
 )
 
-# Callbacks
-
-# Callbacks
-## Callback para atualizar o gráfico geral  #
-@app.callback(
-    Output('geral', 'figure'),
-    Input('color-mode-switch', 'value'),
-)
-##Geral
-def gerar_grafico_geral(switch_on):
-### Operação com o df para gerar o gráfico
-    aulas_prontas = df_cursos[df_cursos['progresso'] == 100]
-    aulas_prontas = aulas_prontas.groupby(['data final', 'curso', 'Módulo'])['Aula'].sum().reset_index()
-    aulas_prontas['Aula'] = 1
-    aulas_prontas = aulas_prontas.sort_values(by=['curso', 'data final'])
-    aulas_prontas['aulas prontas'] = aulas_prontas.groupby(['curso'])['Aula'].cumsum() 
-   
-### Plotagem do gráfico
-    g_geral = px.line(aulas_prontas,
-                      height=600,
-                      x='data final',
-                      y='aulas prontas',
-                      color='curso',
-                      hover_data={'Aula': True}
-                      )
-
-    g_geral.update_layout(grafico_config, showlegend=True,
-                          legend=dict(title='Cursos', yanchor='top', y=0.90, xanchor='left', x=0.10),
-                          title={'text': 'Progresso de Aulas Finalizadas por Curso', 'x': 0.5})
-
-    g_geral.update_yaxes(title='Aulas Finalizadas')
-    g_geral.update_xaxes(title=None, rangeslider=dict(visible=True, thickness=0.07))
-
-    g_geral.update_traces(mode='lines+markers',
-                          customdata=np.stack(
-                              (aulas_prontas['curso'], aulas_prontas['Módulo'], aulas_prontas['Aula']),
-                              axis=-1),
-                          hovertemplate='Módulo %{customdata[1]}<br>'
-                                        'Aula: %{customdata[2]}<br>'
-                                        'Concluída em %{x}<br>'
-                          )
-
-### Modificações de tema no gráfico
-    template = pio.templates['journal'] if switch_on else pio.templates['journal_dark']
-    g_geral.update_layout(template=template)
-### Retorno
-    return g_geral
-
 ## Callback para atualizar os gráficos
 @app.callback(
     Output('gantt', 'figure'),
@@ -314,10 +294,10 @@ def gerar_grafico_geral(switch_on):
     Output('g-responsavel', 'figure'),
     Input('filtro-modulo', 'value'),
     Input('filtro-curso', 'value'),
-    Input('color-mode-switch', 'value'),
+    prevent_initial_call=True
 )
-
-def atualizar_graficos(modulo_selecionado, curso_selecionado, switch_on):
+@cache.memoize()
+def atualizar_graficos(modulo_selecionado, curso_selecionado):
 ##  Manipulando df para gerar os gráficos  ##
     df_filtrado = df_cursos.copy()
     if curso_selecionado:
@@ -532,16 +512,6 @@ def atualizar_graficos(modulo_selecionado, curso_selecionado, switch_on):
                                               'Subtarefas: %{x}<br>'
                                 )
 
-### Modificações de tema nos gráficos
-    template = pio.templates['journal'] if switch_on else pio.templates['journal_dark']
-    gantt.update_layout(template=template)
-    g_linhas.update_layout(template=template)
-    g_progresso.update_layout(template=template)
-    g_duracao.update_layout(template=template)
-    g_barras.update_layout(template=template)
-    g_professores.update_layout(template=template)
-    g_responsavel.update_layout(template=template)
-
 ### Retorno
     return (gantt,
             g_linhas,
@@ -595,29 +565,6 @@ def atualizar_opcoes_modulo(curso_selecionado):
     else:
         modulos_unicos = df_cursos[df_cursos['curso'].isin(curso_selecionado)]['Módulo'].unique()
         return [{'label': modulo, 'value': modulo} for modulo in modulos_unicos]
-
-## Callback para mudar o tema
-clientside_callback(
-    """
-    (switchOn) => {
-       document.documentElement.setAttribute('data-bs-theme', switchOn ? 'light' : 'dark');  
-       return window.dash_clientside.no_update
-    }
-    """,
-    Output('color-mode-switch', 'id'),
-    Input('color-mode-switch', 'value'),
-)
-
-@app.callback(
-    [Output('filtro-curso', 'className'),
-     Output('filtro-modulo', 'className')],
-    [Input('color-mode-switch', 'value')]
-)
-def update_dropdown_style(switch_value):
-    if switch_value:
-        return ['dropdown', 'dropdown']
-    else:
-        return ['dropdown dark-mode', 'dropdown dark-mode']
 
 # Exercutar o app
 if __name__ == '__main__':
